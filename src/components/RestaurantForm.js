@@ -22,6 +22,7 @@ class RestaurantForm extends Component {
     }
     this.handleInputChange = this.handleInputChange.bind(this)
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.validateURLChange = this.validateURLChange.bind(this);
     this.validateInputChange = this.validateInputChange.bind(this);
   }
 
@@ -59,12 +60,28 @@ class RestaurantForm extends Component {
 
   handleInputChange(event) {
     if(event.target.name === 'image'){
-      this.validateInputChange(event.target.value)
+      this.validateURLChange(event.target.value)
+    } else {
+      this.validateInputChange(event.target.value, event.target.name)
     }
     this.setState({ [event.target.name]: event.target.value})
   }
 
-  validateInputChange(value) {
+  validateInputChange(value, name) {
+    let label = name.replace(/([A-Z])/g, ' $1').toUpperCase();
+    if (value === '' || value === ' ') {
+      let newError = { [name]: `${label} may not be blank.` }
+      this.setState({ errors: Object.assign(this.state.errors, newError) })
+      return false
+    } else {
+      let errorState = this.state.errors
+      delete errorState[[name]]
+      this.setState({errors: errorState })
+      return true
+    }
+  }
+
+  validateURLChange(value) {
     if ((value === '' || value === ' ') || !value.includes('http')) {
       let newError = { image: `Must provide valid url` }
       this.setState({ errors: Object.assign(this.state.errors, newError) })

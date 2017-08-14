@@ -6,6 +6,7 @@ class ReviewForm extends Component{
   constructor(props) {
     super(props)
     this.state = {
+      errors: {},
       restaurant_id: '',
       name: '',
       rating: '',
@@ -14,6 +15,7 @@ class ReviewForm extends Component{
     }
     this.handleInputChange = this.handleInputChange.bind(this)
     this.handleFormSubmit = this.handleFormSubmit.bind(this)
+    this.validateInputChange = this.validateInputChange.bind(this)
   }
 
   handleFormSubmit(event) {
@@ -42,6 +44,7 @@ class ReviewForm extends Component{
   handleClearForm(event) {
     event.preventDefault();
     this.setState({
+      errors: {},
       restaurant_id: '',
       name: '',
       rating: '',
@@ -50,12 +53,36 @@ class ReviewForm extends Component{
   }
 
   handleInputChange(event) {
+    this.validateInputChange(event.target.value, event.target.name)
     this.setState({ [event.target.name]: event.target.value})
   }
 
+  validateInputChange(value, name) {
+    let label = name.replace(/([A-Z])/g, ' $1').toUpperCase();
+    if (value === '' || value === ' ') {
+      let newError = { [name]: `${label} may not be blank.` }
+      this.setState({ errors: Object.assign(this.state.errors, newError) })
+      return false
+    } else {
+      let errorState = this.state.errors
+      delete errorState[[name]]
+      this.setState({errors: errorState })
+      return true
+    }
+  }
+
   render() {
+    let errorDiv;
+    let errorItems;
+    if (Object.keys(this.state.errors).length > 0) {
+      errorItems = Object.values(this.state.errors).map(error => {
+        return(<li key={error}>{error}</li>)
+      })
+      errorDiv = <div className="callout alert">{errorItems}</div>
+    }
     return(
       <form className="callout" onSubmit={this.handleFormSubmit}>
+        {errorDiv}
         <TextField
           content={this.state.name}
           label='Name'
